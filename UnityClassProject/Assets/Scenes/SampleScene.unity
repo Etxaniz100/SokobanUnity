@@ -1302,13 +1302,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea78ac12527cc60409bac5c6e6049052, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tMap:
-  - {x: 3, y: 0}
-  - {x: 2, y: -2}
-  - {x: -1, y: 0}
-  - {x: 1, y: 3}
   m_oBoxPrefab: {fileID: 4111544273695433632, guid: b6fbaa837a2378442a919c770f057471, type: 3}
   m_oWallPrefab: {fileID: 6197354734058301923, guid: d1d64c01f00fa274abfe7337f01190da, type: 3}
+  m_oPlayerPrefab: {fileID: 0}
+  m_oEndFlagPrefab: {fileID: 0}
+  m_sFilesPath: LevelFiles/
+  m_tLevelsFilenameList: []
+  m_fCellSize: 1
+  m_fTimeToMove: 1
 --- !u!4 &1162710693
 Transform:
   m_ObjectHideFlags: 0

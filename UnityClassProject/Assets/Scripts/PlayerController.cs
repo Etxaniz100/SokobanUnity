@@ -11,13 +11,12 @@ public class PlayerController : MonoBehaviour
   private Vector3 vInitialPosition;
   private Vector3 vEndPosition;
 
-  [SerializeField]
-  private float fTimeToMove;
+  private float m_fTimeToMove;
   private float fTimerTimeToMove;
-  
-  [SerializeField]
-  private float fCellSize;
 
+  private float m_fLevelStartTime;
+
+  private float m_fCellSize;
 
   [SerializeField]
   private float fSphereCastRadius;
@@ -25,28 +24,18 @@ public class PlayerController : MonoBehaviour
   public InputActionReference m_rMoveInputAction;
   public InputActionReference m_rUndoInputAction;
 
-  [SerializeField]
   public GameManager m_rManagerReference;
 
-
-  // Start is called once before the first execution of Update after the MonoBehaviour is created
-  void Start()
+  private void Start()
   {
-        
+    EventLibrary.OnWin += LevelWon;
   }
 
-  private void OnDrawGizmos()
+  private void OnDestroy()
   {
-
+    EventLibrary.OnWin -= LevelWon;
   }
 
-  // Update is called once per frame
-  void Update()
-  {
-
-  }
-
-  // TODO: Add IPushable interface for boxes
   // TODO: Move camera on level start
   public void UndoMove(InputAction.CallbackContext _cbc)
   {
@@ -57,15 +46,27 @@ public class PlayerController : MonoBehaviour
 
     //Debug.Log(m_rUndoInputAction.action.ReadValue<bool>());
     //Debug.Log(_cbc);
-    
 
-    m_rManagerReference.UndoMove();
+    EventLibrary.CallOnUndoMove();
   }
 
+  public void SetData(float _fCellSize, float _fTimeToMove, GameManager _rManager)
+  {
+    m_fCellSize = _fCellSize;
+    m_fTimeToMove = _fTimeToMove;
+    m_rManagerReference = _rManager;
+    bMoving = false;
+    m_fLevelStartTime = Time.realtimeSinceStartup;
+  }
 
   public void Move(InputAction.CallbackContext _cbc)
   {
     if (bMoving)
+    {
+      return;
+    }
+
+    if(Time.realtimeSinceStartup - m_fLevelStartTime < m_fTimeToMove)
     {
       return;
     }
@@ -92,17 +93,17 @@ public class PlayerController : MonoBehaviour
 
     fTimerTimeToMove = 0;
     vInitialPosition = transform.position;
-    vEndPosition = vInitialPosition + vMoveDirection * fCellSize;
+    vEndPosition = vInitialPosition + vMoveDirection * m_fCellSize;
 
     RaycastHit oHit;
 
     bool bCanMove = false;
     bool bBoxPushed = false;
-    BoxComponent oBox = null;
+    IPushable oBox = null;
 
     //Debug.DrawLine(vInitialPosition, vEndPosition, new UnityEngine.Color(0, 1, 0), 1);
 
-    if (Physics.Raycast(vInitialPosition, vMoveDirection * fCellSize, out oHit, fCellSize))
+    if (Physics.Raycast(vInitialPosition, vMoveDirection * m_fCellSize, out oHit, m_fCellSize))
     {
       //Debug.DrawLine(oHit.point, oHit.point + Vector3.up, new UnityEngine.Color(0, 1, 0), 1);
       if (oHit.collider.tag == "Wall")
@@ -111,13 +112,18 @@ public class PlayerController : MonoBehaviour
       }
       else if (oHit.collider.tag == "Box")
       {
-        oHit.collider.gameObject.TryGetComponent<BoxComponent>(out oBox);
+        oHit.collider.gameObject.TryGetComponent<IPushable>(out oBox);
 
         if (oBox != null)
         {
-          bCanMove = oBox.Push(vMoveDirection, fTimeToMove, fCellSize);
+          bCanMove = oBox.Push(vMoveDirection);
+          
           bBoxPushed = bCanMove;
         }
+      }
+      else
+      {
+        bCanMove = true;
       }
     }
     else
@@ -129,20 +135,22 @@ public class PlayerController : MonoBehaviour
     {
       MoveTo(vInitialPosition, vEndPosition);
 
+      EventLibrary.CallOnStep();
+
       // TODO: Send info (of action) to game manager
       GameManager.TurnData data = new GameManager.TurnData();
       data.rPlayerController = this;
       data.vMoveDirection = vMoveDirection;
-      data.rMovedBox = oBox;
+      data.rPushable = oBox;
       m_rManagerReference.DoMove(data);
     }
   }
 
   public bool MoveTo(Vector3 _vInitialPosition, Vector3 _vEndPosition)
   {
-    if(!bMoving)
+    if(!bMoving && this.enabled)
     {
-      StartCoroutine(MoveToCorroutine(_vInitialPosition, _vEndPosition, fTimeToMove));
+      StartCoroutine(MoveToCorroutine(_vInitialPosition, _vEndPosition, m_fTimeToMove));
     }
     return !bMoving;
   }
@@ -156,8 +164,8 @@ public class PlayerController : MonoBehaviour
     if (!bMoving)
     {
       vInitialPosition = transform.position;
-      vEndPosition = vInitialPosition + _vDirection * fCellSize;
-      StartCoroutine(MoveToCorroutine(vInitialPosition, vEndPosition, fTimeToMove));
+      vEndPosition = vInitialPosition + _vDirection * m_fCellSize;
+      StartCoroutine(MoveToCorroutine(vInitialPosition, vEndPosition, m_fTimeToMove));
     }
     return !bMoving;
   }
@@ -168,7 +176,7 @@ public class PlayerController : MonoBehaviour
     bool bEnd = false;
     bMoving = true;
 
-    while (!bEnd)
+    while (bMoving && !bEnd)
     {
       fTimer += Time.deltaTime;
 
@@ -184,6 +192,11 @@ public class PlayerController : MonoBehaviour
       yield return null;
     }
 
+    bMoving = false;
+  }
+
+  void LevelWon()
+  {
     bMoving = false;
   }
 }

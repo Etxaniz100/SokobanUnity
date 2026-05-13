@@ -206,7 +206,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.5777864, y: 0, z: 0, w: 0.8161881}
-  m_LocalPosition: {x: 0, y: 13.91, z: -5.2}
+  m_LocalPosition: {x: 5, y: 13.91, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -458,10 +458,16 @@ MonoBehaviour:
   m_oBoxPrefab: {fileID: 4111544273695433632, guid: b6fbaa837a2378442a919c770f057471, type: 3}
   m_oWallPrefab: {fileID: 6197354734058301923, guid: d1d64c01f00fa274abfe7337f01190da, type: 3}
   m_oPlayerPrefab: {fileID: 3269387675884136731, guid: 4620087651c17b24dafe108b08c8ede6, type: 3}
+  m_oEndFlagPrefab: {fileID: 858706197185267905, guid: 6ec49fa3fa6940c438710847c8b97d24, type: 3}
   m_sFilesPath: LevelFiles/
-  m_tFurnitureFilenameList:
-  - Level2
+  m_tLevelsFilenameList:
+  - Level0
   - Level1
+  - Level2
+  - Level3
+  - Level4
+  m_fCellSize: 1
+  m_fTimeToMove: 0.1
 --- !u!4 &1162710693
 Transform:
   m_ObjectHideFlags: 0

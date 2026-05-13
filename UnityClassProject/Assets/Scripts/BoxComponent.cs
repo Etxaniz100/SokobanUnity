@@ -3,110 +3,58 @@ using System.Drawing;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BoxComponent : MonoBehaviour
+public class BoxComponent : MonoBehaviour, IPushable
 {
 
-  private bool bMoving;
-  private Vector3 vInitialPosition;
-  private Vector3 vEndPosition;
+  private bool bIsMoving;
 
   [SerializeField]
   private float fTimerTimeToMove;
 
 
-  private float fTimeToMove;
-  private float fCellSize;
-
-  private void OnDrawGizmos()
+  private float m_fCellSize = 1;
+  private float m_fTimeToMove = 1;
+    public void SetData(float _fCellSize, float _fTimeToMove, GameManager _rManager)
   {
-
+    m_fCellSize = _fCellSize;
+    m_fTimeToMove = _fTimeToMove;
   }
 
-  // Start is called once before the first execution of Update after the MonoBehaviour is created
-  //void Start()
-  //{
-  //      
-  //}
 
-  // Update is called once per frame
-  //void Update()
-  //{
-  //
-  //}
 
-  public bool Push(Vector3 _vMoveDirection, float _fTimeToMove, float _fCellSize)
+  public bool Push(Vector3 _vMoveDirection)
   {
-    fTimeToMove = _fTimeToMove;
-    fCellSize = _fCellSize;
+    bool bCanBePushed = CanBePushed(_vMoveDirection);
 
-    bool bCanMove = false;
-
-    fTimerTimeToMove = 0;
-    vInitialPosition = transform.position;
-    vEndPosition = vInitialPosition + _vMoveDirection * fCellSize;
-    RaycastHit oHit;
-
-    //Debug.DrawLine(vInitialPosition, vEndPosition, new UnityEngine.Color(0, 1, 0), 1);
-
-    if (Physics.Raycast(vInitialPosition, _vMoveDirection * fCellSize, out oHit, fCellSize))
+    if(!bCanBePushed)
     {
-
-      //Debug.DrawLine(oHit.point, oHit.point + Vector3.up, new UnityEngine.Color(0, 0, 1), 1);
-       
-      if (oHit.collider.tag == "Wall")
-      {
-        bCanMove = false;
-      }
-      else if (oHit.collider.tag == "Box")
-      {
-        bCanMove = false;
-        //BoxComponent oBox = null;
-        //oHit.collider.gameObject.TryGetComponent<BoxComponent>(out oBox);
-        //
-        //if (oBox != null)
-        //{
-        //  bCanMove = oBox.Push(_vMoveDirection, fTimeToMove, fCellSize);
-        //}
-      }
-      else
-      {
-        bCanMove = true;
-      }
-
-      //Debug.Log("Hit: " + oHit.collider.tag + " bCanMove : " + bCanMove);
-    }
-    else
-    {
-      bCanMove = true;
+      return false;
     }
 
-    if(bCanMove)
-    {
-      StartCoroutine(MoveToCorroutine(vInitialPosition, vEndPosition, fTimeToMove));
-    }
-
-    return bCanMove;
+    StartCoroutine(MoveToCorroutine(transform.position, transform.position + _vMoveDirection * m_fCellSize, m_fTimeToMove));
+    
+    return true;
   }
 
-  public bool CanMove()
+  public bool IsAlreadyMoving()
   {
-    return !bMoving;
+    return bIsMoving;
   }
 
   public bool MoveInDirection(Vector3 _vDirection)
   {
-    if (!bMoving)
+    if (!bIsMoving)
     {
-      StartCoroutine(MoveToCorroutine(transform.position, transform.position + _vDirection * fCellSize, fTimeToMove));
+      StartCoroutine(MoveToCorroutine(transform.position, transform.position + _vDirection * m_fCellSize, m_fTimeToMove));
     }
-    return !bMoving;
+    return !bIsMoving;
   }
 
   IEnumerator MoveToCorroutine(Vector3 _vInitialPosition, Vector3 _vEndPosition, float _fDuration)
   {
     float fTimer = 0;
     bool bEnd = false;
-    bMoving = true;
+    bIsMoving = true;
 
     while (!bEnd)
     {
@@ -124,37 +72,56 @@ public class BoxComponent : MonoBehaviour
       yield return null;
     }
 
-    bMoving = false;
+    bIsMoving = false;
   }
 
-
-  IEnumerator Draw(Vector3 _vInitialPosition, Vector3 _vEndPosition, float _fDuration)
+  public bool CanBePushed(Vector3 _vMoveDirection)
   {
+    bool bCanMove = false;
 
+    RaycastHit oHit;
 
-
-    float fTimer = 0;
-    bool bEnd = false;
-    bMoving = true;
-
-    while (!bEnd)
+    if (Physics.Raycast(transform.position, _vMoveDirection * m_fCellSize, out oHit, m_fCellSize))
     {
-      fTimer += Time.deltaTime;
-
-      
-
-      if (Mathf.Clamp(fTimer / _fDuration, 0, 1) >= 1)
+      if (oHit.collider.tag == "Wall")
       {
-        //End movement
-        transform.position = vEndPosition;
-        bEnd = true;
+        bCanMove = false;
       }
-
-      yield return null;
+      else if (oHit.collider.tag == "Box")
+      {
+        bCanMove = false;
+      }
+      else
+      {
+        bCanMove = true;
+      }
+    }
+    else
+    {
+      bCanMove = true;
     }
 
-    bMoving = false;
+    return bCanMove;
   }
+
+
+  //private void OnTriggerExit(Collider other)
+  //{
+  //  if (other.gameObject.tag == "Flag")
+  //  {
+  //    m_rManagerReference.FlagReached(false);
+  //  }
+  //}
+  //
+  //private void OnTriggerEnter(Collider other) 
+  //{
+  //  if (other.gameObject.tag == "Flag")
+  //  {
+  //    m_rManagerReference.FlagReached(true);
+  //  }
+  //}
+
+  // TODO: Change material color on flag reached
 
 }
 
