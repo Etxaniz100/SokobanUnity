@@ -1,7 +1,9 @@
-using System.Collections;
-using System.Drawing;
+using System;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections;
+using System.Collections.Generic;
 
 public class BoxComponent : MonoBehaviour, IPushable
 {
@@ -14,13 +16,47 @@ public class BoxComponent : MonoBehaviour, IPushable
 
   private float m_fCellSize = 1;
   private float m_fTimeToMove = 1;
-    public void SetData(float _fCellSize, float _fTimeToMove, GameManager _rManager)
+
+  public event Action OnPush;
+
+  public int m_iColor = 0;
+
+  public Color m_oColor;
+
+  public void SetData(float _fCellSize, float _fTimeToMove, GameManager _rManager, Color _oColor, int _iColor = 0)
   {
     m_fCellSize = _fCellSize;
     m_fTimeToMove = _fTimeToMove;
+    m_iColor = _iColor;
+    m_oColor = _oColor;
+    SetColor(false);
   }
 
 
+  public void SetSolved(bool _bSolved)
+  {
+    SetColor(_bSolved);
+
+  }
+
+  public int GetColor()
+  {
+    return m_iColor;
+  }
+
+  public void SetColor(bool _bSolved)
+  {
+    Material material = GetComponent<MeshRenderer>().material;
+
+    Color oColor = m_oColor;
+
+    if (_bSolved) 
+    {
+      oColor = oColor / 2;
+    }
+
+    material.color = oColor;
+  }
 
   public bool Push(Vector3 _vMoveDirection)
   {
@@ -32,7 +68,7 @@ public class BoxComponent : MonoBehaviour, IPushable
     }
 
     StartCoroutine(MoveToCorroutine(transform.position, transform.position + _vMoveDirection * m_fCellSize, m_fTimeToMove));
-    
+
     return true;
   }
 
@@ -52,6 +88,8 @@ public class BoxComponent : MonoBehaviour, IPushable
 
   IEnumerator MoveToCorroutine(Vector3 _vInitialPosition, Vector3 _vEndPosition, float _fDuration)
   {
+    OnPush?.Invoke();
+
     float fTimer = 0;
     bool bEnd = false;
     bIsMoving = true;

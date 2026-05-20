@@ -33,4 +33,13 @@ public class EventLibrary
     OnWin?.Invoke();
   }
 
+
+  public delegate void RestartLevelDelegate();
+  public static event RestartLevelDelegate OnRestartLevel;
+  public static void CallOnRestartLevel()
+  {
+    OnRestartLevel?.Invoke();
+  }
+
+
 }

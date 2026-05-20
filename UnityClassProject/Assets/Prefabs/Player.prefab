@@ -122,8 +122,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9c388dc627eeb946b1e92c47205e72f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fTimeToMove: 0.3
-  fCellSize: 1
   fSphereCastRadius: 0.25
   m_rMoveInputAction: {fileID: -4584388412895860798, guid: fc727db1e2f206d439a07827bf782a40, type: 3}
   m_rUndoInputAction: {fileID: 721397792861547648, guid: fc727db1e2f206d439a07827bf782a40, type: 3}
@@ -185,6 +183,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: dd98e8d6-3a60-45d3-9da5-9940e6440112
     m_ActionName: 'Player/Undo[/Keyboard/z]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2425824160886311604}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: RestartLevel
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: fe20b4f5-56de-4edb-8ba6-b2fd0b294880
+    m_ActionName: 'Player/Restart[/Keyboard/r]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

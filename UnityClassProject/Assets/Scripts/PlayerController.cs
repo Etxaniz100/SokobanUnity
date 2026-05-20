@@ -6,7 +6,8 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
 
-  private bool bMoving;
+  private bool m_bMoving;
+  private bool m_bInitialized = false;
   private Vector3 vMoveDirection;
   private Vector3 vInitialPosition;
   private Vector3 vEndPosition;
@@ -36,10 +37,25 @@ public class PlayerController : MonoBehaviour
     EventLibrary.OnWin -= LevelWon;
   }
 
+
+  public void RestartLevel(InputAction.CallbackContext _cbc)
+  {
+    if (!this.isActiveAndEnabled)
+    {
+      return;
+    }
+
+    EventLibrary.CallOnRestartLevel();
+  }
+
   // TODO: Move camera on level start
   public void UndoMove(InputAction.CallbackContext _cbc)
   {
-    if (bMoving)
+    if (!this.isActiveAndEnabled)
+    {
+      return;
+    }
+    if (m_bMoving)
     {
       return;
     }
@@ -55,13 +71,19 @@ public class PlayerController : MonoBehaviour
     m_fCellSize = _fCellSize;
     m_fTimeToMove = _fTimeToMove;
     m_rManagerReference = _rManager;
-    bMoving = false;
+    m_bMoving = false;
     m_fLevelStartTime = Time.realtimeSinceStartup;
+    m_bInitialized = true;
   }
 
   public void Move(InputAction.CallbackContext _cbc)
   {
-    if (bMoving)
+    if(!this.isActiveAndEnabled)
+    {
+      return;
+    }
+
+    if (m_bMoving)
     {
       return;
     }
@@ -148,35 +170,35 @@ public class PlayerController : MonoBehaviour
 
   public bool MoveTo(Vector3 _vInitialPosition, Vector3 _vEndPosition)
   {
-    if(!bMoving && this.enabled)
+    if(!m_bMoving && this.enabled)
     {
       StartCoroutine(MoveToCorroutine(_vInitialPosition, _vEndPosition, m_fTimeToMove));
     }
-    return !bMoving;
+    return !m_bMoving;
   }
 
   public bool CanMove()
   {
-    return !bMoving;
+    return !m_bMoving;
   }
   public bool MoveInDirection(Vector3 _vDirection)
   {
-    if (!bMoving)
+    if (!m_bMoving)
     {
       vInitialPosition = transform.position;
       vEndPosition = vInitialPosition + _vDirection * m_fCellSize;
       StartCoroutine(MoveToCorroutine(vInitialPosition, vEndPosition, m_fTimeToMove));
     }
-    return !bMoving;
+    return !m_bMoving;
   }
 
   IEnumerator MoveToCorroutine(Vector3 _vInitialPosition, Vector3 _vEndPosition, float _fDuration)
   {
     float fTimer = 0;
     bool bEnd = false;
-    bMoving = true;
+    m_bMoving = true;
 
-    while (bMoving && !bEnd)
+    while (m_bMoving && !bEnd)
     {
       fTimer += Time.deltaTime;
 
@@ -192,11 +214,12 @@ public class PlayerController : MonoBehaviour
       yield return null;
     }
 
-    bMoving = false;
+    m_bMoving = false;
   }
 
   void LevelWon()
   {
-    bMoving = false;
+    m_bInitialized = false;
+    m_bMoving = false;
   }
 }

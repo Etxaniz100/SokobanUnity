@@ -123,6 +123,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fTimerTimeToMove: 0
+  m_iColor: 0
+  m_tColorList:
+  - {r: 0.63529414, g: 0.5529412, b: 0.48235297, a: 0}
+  - {r: 0.6263783, g: 0.4039216, b: 0.94509804, a: 0}
+  - {r: 0.41200167, g: 0.9622642, b: 0.26779994, a: 0}
+  - {r: 0.35457456, g: 0.75772023, b: 0.9056604, a: 0}
+  m_oDefaultColor: {r: 0.63529414, g: 0.5529412, b: 0.47450984, a: 0}
 --- !u!54 &-1607763415394563607
 Rigidbody:
   m_ObjectHideFlags: 0

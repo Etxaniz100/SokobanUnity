@@ -40,6 +40,10 @@ public class GameManager : MonoBehaviour
   List<GameObject> m_tBoxObjectPool;
   List<GameObject> m_tFlagObjectPool;
 
+
+  public delegate void StepsCountChanged(int iTotalSteps);
+  public static StepsCountChanged OnStepsCountChanged;
+
   // Data structures
   public struct TurnData
   {
@@ -50,6 +54,7 @@ public class GameManager : MonoBehaviour
   }
 
 
+  public List<Color> m_tColors;
 
   private void Start()
   {
@@ -70,40 +75,125 @@ public class GameManager : MonoBehaviour
       }
       LevelData oCurrentData = new LevelData();
 
+      int iCurrentLayer = 0;
       Vector2 vCurrentPos = new Vector2(0, 0);
       foreach(char c in oLoadedFile.text)
       {
         switch(c)
         {
-          case '#':
-            oCurrentData.tWallPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+          case '#': // Wall
+            if(iCurrentLayer == 0)
+            {
+              oCurrentData.tWallPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+            }
             vCurrentPos.x++;
             break;
 
-          case 'P':
+          case 'P': // Player
             oCurrentData.vPlayerStartPoint = new Vector2(vCurrentPos.x, vCurrentPos.y);
             vCurrentPos.x++;
             break;
           
-          case 'S':
+          case 'S': // Box
             oCurrentData.tBoxStartPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+            oCurrentData.tBoxColor.Add(0);
             vCurrentPos.x++;
             break;
 
-          case '$':
+          case '$': // Box in goal
             oCurrentData.tBoxStartPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
             oCurrentData.tBoxEndPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+            oCurrentData.tBoxColor.Add(0);
+            oCurrentData.tGoalColor.Add(0);
+
             vCurrentPos.x++;
             break;
 
-          case '!':
+          case '!': // Goal
             oCurrentData.tBoxEndPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+            oCurrentData.tGoalColor.Add(0);
             vCurrentPos.x++;
             break;
 
-          case '\n':
+          case '\n': // Line jump
             vCurrentPos.y--;
             vCurrentPos.x = 0;
+            break;
+
+          case '-': // New layer
+            vCurrentPos.x = 0;
+            vCurrentPos.y = 1;
+            iCurrentLayer += 1;
+            break;
+
+          case '0':
+            if (iCurrentLayer == 0)
+            {
+              oCurrentData.tBoxStartPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tBoxColor.Add(0);
+            }
+            else
+            {
+              oCurrentData.tBoxEndPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tGoalColor.Add(0);
+            }
+              vCurrentPos.x++;
+            break;
+
+          case '1':
+            if (iCurrentLayer == 0)
+            {
+              oCurrentData.tBoxStartPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tBoxColor.Add(1);
+            }
+            else
+            {
+              oCurrentData.tBoxEndPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tGoalColor.Add(1);
+            }
+            vCurrentPos.x++;
+            break;
+
+          case '2':
+            if (iCurrentLayer == 0)
+            {
+              oCurrentData.tBoxStartPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tBoxColor.Add(2);
+            }
+            else
+            {
+              oCurrentData.tBoxEndPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tGoalColor.Add(2);
+            }
+            vCurrentPos.x++;
+            break;
+
+          case '3':
+            if (iCurrentLayer == 0)
+            {
+              oCurrentData.tBoxStartPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tBoxColor.Add(3);
+            }
+            else
+            {
+              oCurrentData.tBoxEndPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tGoalColor.Add(3);
+            }
+            vCurrentPos.x++;
+            break;
+
+          case '4':
+            if (iCurrentLayer == 0)
+            {
+              oCurrentData.tBoxStartPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tBoxColor.Add(4);
+            }
+            else
+            {
+              oCurrentData.tBoxEndPosition.Add(new Vector2(vCurrentPos.x, vCurrentPos.y));
+              oCurrentData.tGoalColor.Add(4);
+            }
+            vCurrentPos.x++;
             break;
 
           case ' ':
@@ -120,6 +210,7 @@ public class GameManager : MonoBehaviour
     EventLibrary.OnStep += EventOnStep;
     EventLibrary.OnBoxOnEnd += FlagReached;
     EventLibrary.OnUndoMove += UndoMove;
+    EventLibrary.OnRestartLevel += RestartLevel;
 
 
     if (m_tLevels.Count > 0)
@@ -135,7 +226,14 @@ public class GameManager : MonoBehaviour
     EventLibrary.OnStep -= EventOnStep;
     EventLibrary.OnBoxOnEnd -= FlagReached;
     EventLibrary.OnUndoMove -= UndoMove;
+    EventLibrary.OnRestartLevel -= RestartLevel;
   }
+
+  void RestartLevel()
+  {
+    UnloadLevel();
+    LoadLevel(m_tLevels[m_iCurrentLevel]);
+}
 
   private void UnloadLevel()
   {
@@ -169,6 +267,7 @@ public class GameManager : MonoBehaviour
     m_tTurns.Clear();
 
     m_iNumberOfSteps = 0;
+    OnStepsCountChanged.Invoke(m_iNumberOfSteps);
 
     m_oCurrentLevel = rData;
 
@@ -220,6 +319,7 @@ public class GameManager : MonoBehaviour
       }
     }
 
+    int i = 0;
     // Set end flags
     foreach (Vector2 vFlagPosition in rData.tBoxEndPosition)
     {
@@ -246,9 +346,12 @@ public class GameManager : MonoBehaviour
 
       FlagComponent rFlagComponent = oFlagObject.GetComponent< FlagComponent>();
 
-      if(rFlagComponent != null)
+      int iFlagColor = (i < rData.tGoalColor.Count)?rData.tGoalColor[i]:0;
+      iFlagColor = iFlagColor  < m_tColors.Count ? iFlagColor  : 0;
+
+      if (rFlagComponent != null)
       {
-        rFlagComponent.SetData();
+        rFlagComponent.SetData(m_tColors[iFlagColor], iFlagColor);
       }
 
 
@@ -257,9 +360,10 @@ public class GameManager : MonoBehaviour
         m_tFlagObjectPool.Add(oFlagObject);
       }
 
+      i++;
     }
 
-    
+    i = 0;
     // Set boxes
     foreach (Vector2 vBoxPosition in rData.tBoxStartPosition)
     {
@@ -284,15 +388,22 @@ public class GameManager : MonoBehaviour
 
       oBoxObject.transform.position = new Vector3(vBoxPosition.x * m_fCellSize, 0.5f, vBoxPosition.y * m_fCellSize);
       BoxComponent oComp = oBoxObject.GetComponent<BoxComponent>();
-      if(oComp != null)
+
+      int iBoxColor = (i < rData.tBoxColor.Count) ? rData.tBoxColor[i] : 0;
+      iBoxColor = iBoxColor < m_tColors.Count ? iBoxColor : 0;
+
+
+      if (oComp != null)
       {
-        oComp.SetData(m_fCellSize, m_fTimeToMove, this);
+        oComp.SetData(m_fCellSize, m_fTimeToMove, this, m_tColors[iBoxColor], iBoxColor);
       }
 
       if(!bFound)
       {
         m_tBoxObjectPool.Add(oBoxObject);
       }
+
+      i++;
     }
 
     m_fLevelStartTime = Time.realtimeSinceStartup;
@@ -355,6 +466,7 @@ public class GameManager : MonoBehaviour
     }
 
     m_iNumberOfSteps--;
+    OnStepsCountChanged.Invoke(m_iNumberOfSteps);
 
     //Debug.Log("Loaded move (" + rData.iTurnId.ToString() + "): " + rData.vMoveDirection.ToString() + " Box? " + (rData.rMovedBox == null ? "false" : "true"));
   }
@@ -389,6 +501,6 @@ public class GameManager : MonoBehaviour
   public void EventOnStep()
   {
     m_iNumberOfSteps ++;
-    //print(m_iNumberOfSteps);
+    OnStepsCountChanged.Invoke(m_iNumberOfSteps);
   }
 }
