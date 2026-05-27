@@ -31,6 +31,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Next",
+                    "type": "Button",
+                    "id": "67d17f67-4a39-46c4-b8b3-74363b4a31d0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "675da0cd-b2cb-4bcc-8f84-d8d1055ecb67",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -146,7 +164,18 @@
                 },
                 {
                     "name": "",
-                    "id": "a480967e-5967-492b-9ac5-3bf4926a2d40",
+                    "id": "86a6ab04-f080-40eb-85e9-d6b91ccd6106",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Restart",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "433a197a-8aca-4373-b815-f5915084c7ab",
                     "path": "<Keyboard>/z",
                     "interactions": "",
                     "processors": "",
@@ -157,12 +186,23 @@
                 },
                 {
                     "name": "",
-                    "id": "86a6ab04-f080-40eb-85e9-d6b91ccd6106",
-                    "path": "<Keyboard>/r",
+                    "id": "a497ff4f-c726-4160-8aea-a4043d96cc5a",
+                    "path": "<Keyboard>/n",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Restart",
+                    "action": "Next",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f469c026-6b4d-4052-9669-396d86693dcc",
+                    "path": "<Keyboard>/m",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Menu",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

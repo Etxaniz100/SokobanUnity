@@ -23,7 +23,7 @@ public class BoxComponent : MonoBehaviour, IPushable
 
   public Color m_oColor;
 
-  public void SetData(float _fCellSize, float _fTimeToMove, GameManager _rManager, Color _oColor, int _iColor = 0)
+  public void SetData(float _fCellSize, float _fTimeToMove, Color _oColor, int _iColor = 0)
   {
     m_fCellSize = _fCellSize;
     m_fTimeToMove = _fTimeToMove;

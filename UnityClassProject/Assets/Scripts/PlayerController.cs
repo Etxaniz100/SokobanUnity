@@ -2,45 +2,53 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
 
   private bool m_bMoving;
-  private bool m_bInitialized = false;
+  private bool m_bCanMove;
   private Vector3 vMoveDirection;
   private Vector3 vInitialPosition;
   private Vector3 vEndPosition;
 
   private float m_fTimeToMove;
-  private float fTimerTimeToMove;
+  private float m_fCellSize;
 
   private float m_fLevelStartTime;
 
-  private float m_fCellSize;
-
-  [SerializeField]
-  private float fSphereCastRadius;
 
   public InputActionReference m_rMoveInputAction;
   public InputActionReference m_rUndoInputAction;
+  public InputActionReference m_rResetInputAction;
 
-  public GameManager m_rManagerReference;
 
   private void Start()
   {
-    EventLibrary.OnWin += LevelWon;
+    EventLibrary.OnLevelLoaded += LevelWon;
+    //m_rResetInputAction.action.performed += RestartLevel;
   }
 
   private void OnDestroy()
   {
-    EventLibrary.OnWin -= LevelWon;
+    EventLibrary.OnLevelLoaded -= LevelWon;
+    //m_rResetInputAction.action.performed -= RestartLevel;
   }
 
+  public void BackToLevelSelector(InputAction.CallbackContext _cbc)
+  {
+    if (!this.isActiveAndEnabled || _cbc.phase != InputActionPhase.Performed)
+    {
+      return;
+    }
+
+    SceneManager.LoadScene("MainMenu");
+  }
 
   public void RestartLevel(InputAction.CallbackContext _cbc)
   {
-    if (!this.isActiveAndEnabled)
+    if (!this.isActiveAndEnabled || _cbc.phase != InputActionPhase.Performed)
     {
       return;
     }
@@ -48,47 +56,39 @@ public class PlayerController : MonoBehaviour
     EventLibrary.CallOnRestartLevel();
   }
 
-  // TODO: Move camera on level start
-  public void UndoMove(InputAction.CallbackContext _cbc)
+  public void NextLevel(InputAction.CallbackContext _cbc)
   {
-    if (!this.isActiveAndEnabled)
-    {
-      return;
-    }
-    if (m_bMoving)
+    if (!this.isActiveAndEnabled || _cbc.phase != InputActionPhase.Performed)
     {
       return;
     }
 
-    //Debug.Log(m_rUndoInputAction.action.ReadValue<bool>());
-    //Debug.Log(_cbc);
+    EventLibrary.CallOnNextLevelInput();
+  }
+
+
+  public void UndoMove(InputAction.CallbackContext _cbc)
+  {
+    if (!this.isActiveAndEnabled || !m_bCanMove || m_bMoving || _cbc.phase != InputActionPhase.Performed)
+    {
+      return;
+    }
 
     EventLibrary.CallOnUndoMove();
   }
 
-  public void SetData(float _fCellSize, float _fTimeToMove, GameManager _rManager)
+  public void SetData(float _fCellSize, float _fTimeToMove)
   {
     m_fCellSize = _fCellSize;
     m_fTimeToMove = _fTimeToMove;
-    m_rManagerReference = _rManager;
     m_bMoving = false;
     m_fLevelStartTime = Time.realtimeSinceStartup;
-    m_bInitialized = true;
+    m_bCanMove = true;
   }
 
   public void Move(InputAction.CallbackContext _cbc)
   {
-    if(!this.isActiveAndEnabled)
-    {
-      return;
-    }
-
-    if (m_bMoving)
-    {
-      return;
-    }
-
-    if(Time.realtimeSinceStartup - m_fLevelStartTime < m_fTimeToMove)
+    if(!this.isActiveAndEnabled || m_bMoving || Time.realtimeSinceStartup - m_fLevelStartTime < m_fTimeToMove || !m_bCanMove)
     {
       return;
     }
@@ -113,21 +113,18 @@ public class PlayerController : MonoBehaviour
       return;
     }
 
-    fTimerTimeToMove = 0;
     vInitialPosition = transform.position;
     vEndPosition = vInitialPosition + vMoveDirection * m_fCellSize;
 
     RaycastHit oHit;
 
-    bool bCanMove = false;
     bool bBoxPushed = false;
     IPushable oBox = null;
 
-    //Debug.DrawLine(vInitialPosition, vEndPosition, new UnityEngine.Color(0, 1, 0), 1);
+    bool bCanMove = true;
 
     if (Physics.Raycast(vInitialPosition, vMoveDirection * m_fCellSize, out oHit, m_fCellSize))
     {
-      //Debug.DrawLine(oHit.point, oHit.point + Vector3.up, new UnityEngine.Color(0, 1, 0), 1);
       if (oHit.collider.tag == "Wall")
       {
         bCanMove = false;
@@ -139,18 +136,9 @@ public class PlayerController : MonoBehaviour
         if (oBox != null)
         {
           bCanMove = oBox.Push(vMoveDirection);
-          
           bBoxPushed = bCanMove;
         }
       }
-      else
-      {
-        bCanMove = true;
-      }
-    }
-    else
-    {
-      bCanMove = true;
     }
 
     if(bCanMove)
@@ -159,18 +147,18 @@ public class PlayerController : MonoBehaviour
 
       EventLibrary.CallOnStep();
 
-      // TODO: Send info (of action) to game manager
       GameManager.TurnData data = new GameManager.TurnData();
       data.rPlayerController = this;
       data.vMoveDirection = vMoveDirection;
       data.rPushable = oBox;
-      m_rManagerReference.DoMove(data);
+
+      EventLibrary.CallOnTurnDone(data);
     }
   }
 
   public bool MoveTo(Vector3 _vInitialPosition, Vector3 _vEndPosition)
   {
-    if(!m_bMoving && this.enabled)
+    if(m_bCanMove && !m_bMoving && this.enabled)
     {
       StartCoroutine(MoveToCorroutine(_vInitialPosition, _vEndPosition, m_fTimeToMove));
     }
@@ -179,17 +167,19 @@ public class PlayerController : MonoBehaviour
 
   public bool CanMove()
   {
-    return !m_bMoving;
+    return m_bCanMove && !m_bMoving;
   }
   public bool MoveInDirection(Vector3 _vDirection)
   {
-    if (!m_bMoving)
+    if (m_bCanMove && !m_bMoving)
     {
       vInitialPosition = transform.position;
       vEndPosition = vInitialPosition + _vDirection * m_fCellSize;
       StartCoroutine(MoveToCorroutine(vInitialPosition, vEndPosition, m_fTimeToMove));
+
+      return true;
     }
-    return !m_bMoving;
+    return false;
   }
 
   IEnumerator MoveToCorroutine(Vector3 _vInitialPosition, Vector3 _vEndPosition, float _fDuration)
@@ -210,7 +200,6 @@ public class PlayerController : MonoBehaviour
         transform.position = _vEndPosition;
         bEnd = true;
       }
-
       yield return null;
     }
 
@@ -219,7 +208,14 @@ public class PlayerController : MonoBehaviour
 
   void LevelWon()
   {
-    m_bInitialized = false;
+    m_bCanMove = false;
     m_bMoving = false;
+  }
+
+
+  public struct TurnData
+  {
+    public Vector3 vDir;
+
   }
 }

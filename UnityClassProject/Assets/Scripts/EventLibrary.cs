@@ -26,11 +26,11 @@ public class EventLibrary
   }
 
 
-  public delegate void WinDelegate();
-  public static event WinDelegate OnWin;
-  public static void CallOnWin()
+  public delegate void LevelLoadedDelegate();
+  public static event LevelLoadedDelegate OnLevelLoaded;
+  public static void CallOnLevelLoaded()
   {
-    OnWin?.Invoke();
+    OnLevelLoaded?.Invoke();
   }
 
 
@@ -41,5 +41,26 @@ public class EventLibrary
     OnRestartLevel?.Invoke();
   }
 
+  public delegate void TurnDoneDelegate(GameManager.TurnData rTurn);
+  public static event TurnDoneDelegate OnTurnDone;
+  public static void CallOnTurnDone(GameManager.TurnData rTurn)
+  {
+    OnTurnDone?.Invoke(rTurn);
+  }
 
+  public delegate void NextLevelInputDelegate();
+  public static event NextLevelInputDelegate OnNextLevelInput;
+  public static void CallOnNextLevelInput()
+  {
+    OnNextLevelInput?.Invoke();
+  }
+
+
+
+  public delegate void LoadLevelByIndexDelegate(int iIndex);
+  public static event LoadLevelByIndexDelegate OnLoadLevelByIndex;
+  public static void CallOnLoadLevelByIndex(int iIndex)
+  {
+    OnLoadLevelByIndex?.Invoke(iIndex);
+  }
 }

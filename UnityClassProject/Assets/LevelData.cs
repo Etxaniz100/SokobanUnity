@@ -10,6 +10,7 @@ public class LevelData : ScriptableObject
     public List<Vector2> tBoxEndPosition;
     public List<int> tGoalColor;
     public List<Vector2> tWallPosition;
+    public Vector2 vLevelCenter;
 
     public LevelData()
     {

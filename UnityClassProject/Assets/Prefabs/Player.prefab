@@ -122,10 +122,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9c388dc627eeb946b1e92c47205e72f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fSphereCastRadius: 0.25
   m_rMoveInputAction: {fileID: -4584388412895860798, guid: fc727db1e2f206d439a07827bf782a40, type: 3}
   m_rUndoInputAction: {fileID: 721397792861547648, guid: fc727db1e2f206d439a07827bf782a40, type: 3}
-  m_rManagerReference: {fileID: 0}
+  m_rResetInputAction: {fileID: 0}
 --- !u!114 &4953304175732375688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -199,6 +198,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: fe20b4f5-56de-4edb-8ba6-b2fd0b294880
     m_ActionName: 'Player/Restart[/Keyboard/r]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2425824160886311604}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: NextLevel
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 67d17f67-4a39-46c4-b8b3-74363b4a31d0
+    m_ActionName: 'Player/Next[/Keyboard/n]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2425824160886311604}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: BackToLevelSelector
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 675da0cd-b2cb-4bcc-8f84-d8d1055ecb67
+    m_ActionName: 'Player/Menu[/Keyboard/m]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
