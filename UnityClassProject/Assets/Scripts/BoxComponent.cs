@@ -46,7 +46,7 @@ public class BoxComponent : MonoBehaviour, IPushable
 
   public void SetColor(bool _bSolved)
   {
-    Material material = GetComponent<MeshRenderer>().material;
+    Material material = GetComponentInChildren<MeshRenderer>().material;
 
     Color oColor = m_oColor;
 

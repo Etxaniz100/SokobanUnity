@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
 {
 
   private bool m_bMoving;
+  private bool m_bPushing;
   private bool m_bCanMove;
   private Vector3 vMoveDirection;
   private Vector3 vInitialPosition;
@@ -23,13 +24,24 @@ public class PlayerController : MonoBehaviour
   public InputActionReference m_rUndoInputAction;
   public InputActionReference m_rResetInputAction;
 
+  private Animator m_rAnimator;
 
   private void Start()
   {
-    EventLibrary.OnLevelLoaded += LevelWon;
-    //m_rResetInputAction.action.performed += RestartLevel;
+    m_rAnimator = GetComponentInChildren<Animator>();
   }
 
+  private void Update()
+  {
+    m_rAnimator?.SetBool("moving", !m_bPushing && m_bMoving);
+    m_rAnimator?.SetBool("pushing", m_bPushing);
+  }
+
+  private void OnEnable()
+  {
+    //m_rResetInputAction.action.performed += RestartLevel;
+    EventLibrary.OnLevelLoaded += LevelWon;
+  }
   private void OnDestroy()
   {
     EventLibrary.OnLevelLoaded -= LevelWon;
@@ -82,8 +94,11 @@ public class PlayerController : MonoBehaviour
     m_fCellSize = _fCellSize;
     m_fTimeToMove = _fTimeToMove;
     m_bMoving = false;
+    m_bPushing = false;
+
     m_fLevelStartTime = Time.realtimeSinceStartup;
     m_bCanMove = true;
+
   }
 
   public void Move(InputAction.CallbackContext _cbc)
@@ -143,6 +158,9 @@ public class PlayerController : MonoBehaviour
 
     if(bCanMove)
     {
+
+      m_bPushing = oBox != null;
+
       MoveTo(vInitialPosition, vEndPosition);
 
       EventLibrary.CallOnStep();
@@ -160,6 +178,10 @@ public class PlayerController : MonoBehaviour
   {
     if(m_bCanMove && !m_bMoving && this.enabled)
     {
+      Vector3 vRotationAxis = new Vector3(0, 1, 0);
+      float fAngle = Vector3.SignedAngle(transform.forward, _vEndPosition - _vInitialPosition, vRotationAxis);
+      transform.Rotate(vRotationAxis, fAngle);
+
       StartCoroutine(MoveToCorroutine(_vInitialPosition, _vEndPosition, m_fTimeToMove));
     }
     return !m_bMoving;
@@ -169,12 +191,17 @@ public class PlayerController : MonoBehaviour
   {
     return m_bCanMove && !m_bMoving;
   }
-  public bool MoveInDirection(Vector3 _vDirection)
+  public bool MoveInDirection(Vector3 _vDirection, bool _bMoveFordward = true)
   {
     if (m_bCanMove && !m_bMoving)
     {
       vInitialPosition = transform.position;
       vEndPosition = vInitialPosition + _vDirection * m_fCellSize;
+
+      Vector3 vRotationAxis = new Vector3(0, 1, 0);
+      float fAngle = Vector3.SignedAngle(_bMoveFordward?transform.forward:-transform.forward, _vDirection, vRotationAxis);
+      transform.Rotate(vRotationAxis, fAngle);
+
       StartCoroutine(MoveToCorroutine(vInitialPosition, vEndPosition, m_fTimeToMove));
 
       return true;
@@ -187,6 +214,7 @@ public class PlayerController : MonoBehaviour
     float fTimer = 0;
     bool bEnd = false;
     m_bMoving = true;
+
 
     while (m_bMoving && !bEnd)
     {
@@ -204,6 +232,7 @@ public class PlayerController : MonoBehaviour
     }
 
     m_bMoving = false;
+    m_bPushing = false;
   }
 
   void LevelWon()

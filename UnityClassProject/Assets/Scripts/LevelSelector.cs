@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelSelector : MonoBehaviour
 {
@@ -13,12 +14,16 @@ public class LevelSelector : MonoBehaviour
 
   void GenerateButtons()
   {
-    for(int i = 0; i < 10; i++)
+
+    LevelManager rLevelManager = FindFirstObjectByType<LevelManager>();
+    int iNumberOfLevels = rLevelManager?rLevelManager.GetNumberOfLevels():0;
+
+    for (int i = 0; i < iNumberOfLevels; i++)
     {
       LevelSelectorButton oButton = Instantiate(m_oButtonPrefab, m_rGridContent);
       if (oButton != null)
       {
-        oButton.SetUp(i);
+        oButton.SetUp(i, rLevelManager.IsLevelUnlocked(i));
       }
     }
   }

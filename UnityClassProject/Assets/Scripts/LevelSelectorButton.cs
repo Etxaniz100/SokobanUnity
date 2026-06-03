@@ -9,16 +9,18 @@ public class LevelSelectorButton : MonoBehaviour
   [SerializeField] Button m_rButton;
   int m_iLevelIndex = 0;
 
-  public void SetUp(int _iLevel)
+  public void SetUp(int _iLevel, bool _bIsUnlocked)
   {
     m_rButton.onClick.AddListener(OnClick);
     m_iLevelIndex = _iLevel;
     m_rText.text = "Level " + m_iLevelIndex;
+
+    m_rButton.interactable = _bIsUnlocked;
+    
   }
 
   void OnClick()
   {
-    SceneManager.LoadScene("Level1");
     EventLibrary.CallOnLoadLevelByIndex(m_iLevelIndex);
   }
 }

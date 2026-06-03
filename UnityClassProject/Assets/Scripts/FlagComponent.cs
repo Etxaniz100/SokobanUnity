@@ -23,7 +23,7 @@ public class FlagComponent : MonoBehaviour
 
   public void SetColor()
   {
-    Material material = GetComponent<MeshRenderer>().material;
+    Material material = GetComponentInChildren<MeshRenderer>().material;
 
     material.color = m_oColor;
   }

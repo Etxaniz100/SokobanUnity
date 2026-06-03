@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1589317316805491013}
   - component: {fileID: 6027090679057744960}
-  - component: {fileID: 5744369566599809612}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -45,39 +44,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea78ac12527cc60409bac5c6e6049052, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &5744369566599809612
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8367149245626726948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5de6f558919b9b248b5cd66eab99e35f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_sFilesPath: LevelFiles/
-  m_tLevelsFilenameList:
-  - Level0
-  - Level1
-  - Level2
-  - Level3
-  - Level4
-  - Level5
-  - Level6
-  - Level7
-  - Level8
-  - Level9
-  m_oBoxPrefab: {fileID: 4111544273695433632, guid: b6fbaa837a2378442a919c770f057471, type: 3}
-  m_oWallPrefab: {fileID: 6197354734058301923, guid: d1d64c01f00fa274abfe7337f01190da, type: 3}
-  m_oPlayerPrefab: {fileID: 3269387675884136731, guid: 4620087651c17b24dafe108b08c8ede6, type: 3}
-  m_oEndFlagPrefab: {fileID: 858706197185267905, guid: 6ec49fa3fa6940c438710847c8b97d24, type: 3}
-  m_fCellSize: 1
-  m_fTimeToMove: 0.1
-  m_tBoxColors:
-  - {r: 0.7372549, g: 0.63529414, b: 0.30980393, a: 0}
-  - {r: 0.6, g: 0.30980393, b: 0.8980393, a: 0}
-  - {r: 0.34509805, g: 0.9607844, b: 0.32941177, a: 0}
-  - {r: 0.29803923, g: 0.6039216, b: 1, a: 0}
-  m_rCameraTransform: {fileID: 0}

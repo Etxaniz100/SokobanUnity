@@ -5,15 +5,16 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 
-  LeverLoader m_rLeverLoader;
+  //LeverLoader m_rLeverLoader;
 
   private List<TurnData> m_tTurns;
 
-  private LevelData m_oCurrentLevel;
+  //private LevelData m_oCurrentLevel;
   private int m_iCurrentLevel = -1;
 
 
   private int m_iNumberOfFlagsReached = 0;
+  private int m_iNumberOfFlagsNedded = 0;
 
   private float m_fLevelStartTime;
 
@@ -23,6 +24,7 @@ public class GameManager : MonoBehaviour
   public delegate void StepsCountChanged(int iTotalSteps);
   public static StepsCountChanged OnStepsCountChanged;
 
+  LevelManager m_rLevelManager;
 
 
   // Data structures
@@ -34,18 +36,8 @@ public class GameManager : MonoBehaviour
     public int iTurnId;
   }
 
- 
-  private void Start()
+  private void Awake()
   {
-    m_rLeverLoader = GetComponent<LeverLoader>();
-
-    if(m_rLeverLoader == null)
-    {
-      throw new Exception();
-    }
-
-    m_tTurns = new List<TurnData>();
-
     EventLibrary.OnStep += EventOnStep;
     EventLibrary.OnBoxOnEnd += FlagReached;
     EventLibrary.OnUndoMove += UndoMove;
@@ -53,9 +45,22 @@ public class GameManager : MonoBehaviour
     EventLibrary.OnTurnDone += DoMove;
     EventLibrary.OnNextLevelInput += AdvanceLevel;
     EventLibrary.OnLoadLevelByIndex += LoadLevelByIndex;
+  }
 
-    LoadLevel(0);
+  private void Start()
+  {
+    //m_rLeverLoader = GetComponent<LeverLoader>();
+    //
+    //if(m_rLeverLoader == null)
+    //{
+    //  throw new Exception();
+    //}
+
+    m_tTurns = new List<TurnData>();
+
+    m_rLevelManager = FindFirstObjectByType<LevelManager>();
     
+    LoadLevel(m_rLevelManager?m_rLevelManager.GetCurrentLevel():0);  
   }
 
   private void OnDestroy()
@@ -70,7 +75,7 @@ public class GameManager : MonoBehaviour
 
   void RestartLevel()
   {
-    m_rLeverLoader.InstanciateLevel(m_iCurrentLevel);
+    LoadLevel(m_iCurrentLevel);
   }
 
   public void LoadLevelByIndex(int iIndex)
@@ -85,20 +90,18 @@ public class GameManager : MonoBehaviour
 
   bool LoadLevel(int _iLevel)
   {
-    m_iCurrentLevel = _iLevel;
-
-    EventLibrary.CallOnLevelLoaded();
+    bool bCorrect = m_rLevelManager?m_rLevelManager.LoadLevel(_iLevel):false;
     
-    m_oCurrentLevel = m_rLeverLoader.InstanciateLevel(m_iCurrentLevel);
-
-    if (m_oCurrentLevel != null)
+    if (bCorrect)
     {
+      m_iCurrentLevel = _iLevel;
+      
       m_tTurns.Clear();
 
       m_fLevelStartTime = Time.realtimeSinceStartup;
       
       m_iNumberOfSteps = 0;
-      OnStepsCountChanged.Invoke(m_iNumberOfSteps);
+      OnStepsCountChanged?.Invoke(m_iNumberOfSteps);
       
       m_iNumberOfFlagsReached = 0;
       
@@ -158,7 +161,7 @@ public class GameManager : MonoBehaviour
 
     m_tTurns.Remove(rData);
       
-    rData.rPlayerController.MoveInDirection(-rData.vMoveDirection);
+    rData.rPlayerController.MoveInDirection(-rData.vMoveDirection, false);
 
     if(rData.rPushable != null)
     {
@@ -166,7 +169,7 @@ public class GameManager : MonoBehaviour
     }
 
     m_iNumberOfSteps--;
-    OnStepsCountChanged.Invoke(m_iNumberOfSteps);
+    OnStepsCountChanged?.Invoke(m_iNumberOfSteps);
 
   }
 
@@ -176,7 +179,7 @@ public class GameManager : MonoBehaviour
 
     //Debug.Log("Points: " + m_iNumberOfFlagsReached);
 
-    if (m_oCurrentLevel.tBoxEndPosition.Count == m_iNumberOfFlagsReached)
+    if (m_rLevelManager.GetNumberOfFlagsNedded() == m_iNumberOfFlagsReached)
     {
       AdvanceLevel();
     }
@@ -185,6 +188,6 @@ public class GameManager : MonoBehaviour
   public void EventOnStep()
   {
     m_iNumberOfSteps ++;
-    OnStepsCountChanged.Invoke(m_iNumberOfSteps);
+    OnStepsCountChanged?.Invoke(m_iNumberOfSteps);
   }
 }

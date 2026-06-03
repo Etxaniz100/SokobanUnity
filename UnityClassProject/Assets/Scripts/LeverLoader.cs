@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LeverLoader : MonoBehaviour
 {
@@ -37,6 +39,20 @@ public class LeverLoader : MonoBehaviour
 
   private void Awake()
   {
+  }
+  void OnEnable()
+  {
+    SceneManager.sceneLoaded += OnSceneLoaded;
+  }
+
+  void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+  {
+    Camera rCamera = FindFirstObjectByType<Camera>();
+    if(rCamera)
+    {
+      m_rCameraTransform = rCamera.gameObject.transform;
+    }
+
     m_tLevels = new List<LevelData>();
     m_tWallObjectPool = new List<GameObject>();
     m_tBoxObjectPool = new List<GameObject>();
@@ -248,7 +264,11 @@ public class LeverLoader : MonoBehaviour
 
     if (m_rCameraTransform)
     {
-      m_rCameraTransform.position = new Vector3(rData.vLevelCenter.x / 2f, m_rCameraTransform.position.y, -5 + (rData.vLevelCenter.y / 2f));
+      m_rCameraTransform.position = new Vector3(rData.vLevelCenter.x / 2f, m_rCameraTransform.position.y, -4.5f +(rData.vLevelCenter.y / 2f));
+    }
+    else
+    {
+      Debug.Log("No camera transform :(");
     }
 
     m_oCurrentLevel = rData;
@@ -389,5 +409,11 @@ public class LeverLoader : MonoBehaviour
 
     m_bCurrentLevelInstanciated = true;
   }
+
+  public int GetNumberOfLevels()
+  {
+    return m_tLevelsFilenameList != null ? m_tLevelsFilenameList.Count : 0;
+  }
+    
 
 }

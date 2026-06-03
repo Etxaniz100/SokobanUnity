@@ -5,6 +5,6 @@ public class StartGame : MonoBehaviour
 {
   public void Play()
   {
-    SceneManager.LoadScene("Level1");
+    SceneManager.LoadScene("LevelSelector");
   }
 }
