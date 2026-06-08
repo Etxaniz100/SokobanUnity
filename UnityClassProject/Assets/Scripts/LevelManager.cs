@@ -9,19 +9,21 @@ public class LevelManager : MonoBehaviour
 
   public static LevelManager instance { get; private set; }
   private int iLoadedLevel = 0;
-  private int iLastUnlockedLevel = 5;
-
+  private int iLastUnlockedLevel;
   [SerializeField] bool bDeleteSavedData = false;
 
   private LeverLoader m_rLevelLoader;
   private LevelData m_rCurrentLevel;
 
+  public bool m_bToBeDeleted = false;
+
   private void Awake()
   {
     if (instance != null && instance != this)
     {
+      m_bToBeDeleted = true;
       Destroy(gameObject);
-      return;
+	  return;
     }
     instance = this;
 
@@ -45,9 +47,11 @@ public class LevelManager : MonoBehaviour
   void OnSceneLoaded(Scene scene, LoadSceneMode mode)
   {
     m_rLevelLoader = GetComponent<LeverLoader>();
-  }
+	iLastUnlockedLevel = PlayerPrefs.GetInt("iLastUnlockedLevel", 0);
 
-  private void Start()
+	}
+
+	private void Start()
   {
     EventLibrary.OnLoadLevelByIndex += StartGameFromLevel;
   }
@@ -98,6 +102,10 @@ public class LevelManager : MonoBehaviour
 
   public int GetNumberOfLevels()
   {
+    if(m_rLevelLoader == null)
+	{
+		m_rLevelLoader = GetComponent<LeverLoader>();
+	}
     return m_rLevelLoader.GetNumberOfLevels();
   }
 
@@ -109,7 +117,11 @@ public class LevelManager : MonoBehaviour
   // TODO: Unblock levels
   public void UnblockLevel(int iLevel)
   {
-    iLastUnlockedLevel = iLevel;
+    if(iLevel > iLastUnlockedLevel)
+    {
+        iLastUnlockedLevel = iLevel;
+    }
     PlayerPrefs.SetInt("iLastUnlockedLevel", iLastUnlockedLevel);
+    PlayerPrefs.Save();
   }
 }

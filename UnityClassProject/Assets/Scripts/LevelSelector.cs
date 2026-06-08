@@ -15,16 +15,28 @@ public class LevelSelector : MonoBehaviour
   void GenerateButtons()
   {
 
-    LevelManager rLevelManager = FindFirstObjectByType<LevelManager>();
-    int iNumberOfLevels = rLevelManager?rLevelManager.GetNumberOfLevels():0;
+    LevelManager[] tLevelManagerList = FindObjectsByType<LevelManager>(FindObjectsSortMode.InstanceID);
 
-    for (int i = 0; i < iNumberOfLevels; i++)
+    foreach(LevelManager rLevelManager in tLevelManagerList)
     {
-      LevelSelectorButton oButton = Instantiate(m_oButtonPrefab, m_rGridContent);
-      if (oButton != null)
-      {
-        oButton.SetUp(i, rLevelManager.IsLevelUnlocked(i));
-      }
+        // Al obtener el LevelManager, puede estar siendo destruido
+        if(rLevelManager == null || rLevelManager.m_bToBeDeleted)
+        {
+            continue;
+        }
+
+		int iNumberOfLevels = rLevelManager?rLevelManager.GetNumberOfLevels():0;
+
+        for (int i = 0; i < iNumberOfLevels; i++)
+        {
+            LevelSelectorButton oButton = Instantiate(m_oButtonPrefab, m_rGridContent);
+            if (oButton != null)
+            {
+            oButton.SetUp(i, rLevelManager.IsLevelUnlocked(i));
+            }
+        }
+
+        break;
     }
   }
 }

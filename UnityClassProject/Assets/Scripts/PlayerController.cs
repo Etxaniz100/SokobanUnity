@@ -24,17 +24,18 @@ public class PlayerController : MonoBehaviour
   public InputActionReference m_rUndoInputAction;
   public InputActionReference m_rResetInputAction;
 
-  private Animator m_rAnimator;
+  // Actualmente en desuso
+  //private Animator m_rAnimator;
 
   private void Start()
   {
-    m_rAnimator = GetComponentInChildren<Animator>();
+    //m_rAnimator = GetComponentInChildren<Animator>();
   }
 
   private void Update()
   {
-    m_rAnimator?.SetBool("moving", !m_bPushing && m_bMoving);
-    m_rAnimator?.SetBool("pushing", m_bPushing);
+    //m_rAnimator?.SetBool("moving", !m_bPushing && m_bMoving);
+    //m_rAnimator?.SetBool("pushing", m_bPushing);
   }
 
   private void OnEnable()
@@ -242,9 +243,4 @@ public class PlayerController : MonoBehaviour
   }
 
 
-  public struct TurnData
-  {
-    public Vector3 vDir;
-
-  }
 }

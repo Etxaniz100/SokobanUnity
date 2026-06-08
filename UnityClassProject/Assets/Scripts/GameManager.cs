@@ -5,21 +5,13 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 
-  //LeverLoader m_rLeverLoader;
-
   private List<TurnData> m_tTurns;
 
-  //private LevelData m_oCurrentLevel;
   private int m_iCurrentLevel = -1;
 
-
   private int m_iNumberOfFlagsReached = 0;
-  private int m_iNumberOfFlagsNedded = 0;
-
-  private float m_fLevelStartTime;
 
   int m_iNumberOfSteps = 0;
-
 
   public delegate void StepsCountChanged(int iTotalSteps);
   public static StepsCountChanged OnStepsCountChanged;
@@ -33,7 +25,6 @@ public class GameManager : MonoBehaviour
     public Vector3 vMoveDirection;
     public PlayerController rPlayerController;
     public IPushable rPushable;
-    public int iTurnId;
   }
 
   private void Awake()
@@ -49,13 +40,6 @@ public class GameManager : MonoBehaviour
 
   private void Start()
   {
-    //m_rLeverLoader = GetComponent<LeverLoader>();
-    //
-    //if(m_rLeverLoader == null)
-    //{
-    //  throw new Exception();
-    //}
-
     m_tTurns = new List<TurnData>();
 
     m_rLevelManager = FindFirstObjectByType<LevelManager>();
@@ -98,8 +82,6 @@ public class GameManager : MonoBehaviour
       
       m_tTurns.Clear();
 
-      m_fLevelStartTime = Time.realtimeSinceStartup;
-      
       m_iNumberOfSteps = 0;
       OnStepsCountChanged?.Invoke(m_iNumberOfSteps);
       
@@ -114,14 +96,9 @@ public class GameManager : MonoBehaviour
     }
   }
 
-  public float GetLevelStartTime()
-  {
-    return m_fLevelStartTime;
-  }
 
   public void DoMove(TurnData rData)
   {
-    rData.iTurnId = m_tTurns.Count;
     m_tTurns.Add(rData);
   }
 
