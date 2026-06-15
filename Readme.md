@@ -65,4 +65,11 @@ El sokoban es un juego donde se controla un personaje el cual puede empujar caja
   - Para implementar el sistema de cajas de colores, se ha añadido una propiedad a los objetos IPushable, siendo esta propiedad el color. Durante su inicialización, el LevelManager (quien instancia la caja) le pasa un color para poder modificar el material.
   - Esto mismo se ha hecho para las metas.
   - Gracias al sistema de capas en el cargado de niveles, se pueden tener niveles donde una caja verde comience en una meta morada y viceversa.
-  - A la hora de detectar si una caja ha alcanzado una meta, simplemente se comprueba si sus colores coinciden. 
+  - A la hora de detectar si una caja ha alcanzado una meta, simplemente se comprueba si sus colores coinciden.
+ 
+- Controles
+  - WASD / flechas: Desplazarse
+  - N: Siguiente nivel (fuerza su desbloqueo si no lo está)
+  - R: Reiniciar nivel
+  - Z: Deshacer movimiento
+  - M: Volver al menú principal
