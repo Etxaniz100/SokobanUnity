@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     public Vector3 vMoveDirection;
     public PlayerController rPlayerController;
     public IPushable rPushable;
+	public int iTurnId;
   }
 
   private void Awake()
@@ -99,7 +100,8 @@ public class GameManager : MonoBehaviour
 
   public void DoMove(TurnData rData)
   {
-    m_tTurns.Add(rData);
+	rData.iTurnId = m_tTurns.Count;
+	m_tTurns.Add(rData);
   }
 
   public void UndoMove()
